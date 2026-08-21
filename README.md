@@ -1,2 +1,0 @@
-# EasyTiger
-Party account
