@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVENT NAME — 행사 인포</title>
+<style>
+:root{
+  --yellow:#FFE500;
+  --yellow-deep:#FFC800;
+  --black:#111010;
+  --paper:#FFF9DB;
+  --line:4px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:"Apple SD Gothic Neo","Pretendard","Malgun Gothic","Nanum Gothic",system-ui,sans-serif;
+  background:var(--yellow);
+  color:var(--black);
+  overflow-x:hidden;
+  font-weight:700;
+  letter-spacing:-0.02em;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(0,0,0,.05) 0 10px, transparent 10px 20px);
+}
+/* ===== 공통 파츠 ===== */
+.box{
+  background:var(--paper);
+  border:var(--line) solid var(--black);
+  box-shadow:8px 8px 0 var(--black);
+}
+.tape{
+  background:var(--black);
+  color:var(--yellow);
+  padding:6px 0;
+  overflow:hidden;
+  white-space:nowrap;
+  border-top:var(--line) solid var(--black);
+  border-bottom:var(--line) solid var(--black);
+}
+.tape span{
+  display:inline-block;
+  animation:slide 18s linear infinite;
+  font-size:14px;
+  letter-spacing:.15em;
+}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ===== 인트로 ===== */
+#intro{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:28px;
+  background:var(--yellow);
+  background-image:radial-gradient(var(--black) 1.5px, transparent 1.6px);
+  background-size:22px 22px;
+  cursor:pointer;
+  transition:opacity .45s ease, transform .45s ease;
+}
+#intro.gone{opacity:0;transform:scale(1.35);pointer-events:none}
+.logo-wrap{position:relative;animation:float 3.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-14px) rotate(2deg)}}
+.logo{
+  width:min(62vw,290px);height:min(62vw,290px);
+  background:var(--black);color:var(--yellow);
+  border:6px solid var(--black);
+  border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;
+  box-shadow:12px 12px 0 rgba(0,0,0,.25), inset 0 0 0 8px var(--yellow), inset 0 0 0 14px var(--black);
+  text-align:center;
+}
+.logo b{font-size:clamp(28px,7vw,44px);letter-spacing:.08em;line-height:1}
+.logo small{font-size:11px;letter-spacing:.3em;opacity:.75}
+.badge{
+  position:absolute;top:-14px;right:-22px;
+  background:var(--paper);border:var(--line) solid var(--black);
+  padding:8px 12px;font-size:12px;transform:rotate(12deg);
+  box-shadow:4px 4px 0 var(--black);
+}
+.tap{
+  display:inline-block;
+  background:var(--black);color:var(--yellow);
+  padding:10px 22px;font-size:14px;letter-spacing:.2em;
+  animation:blink 1.1s steps(2,start) infinite;
+}
+@keyframes blink{50%{opacity:.25}}
+
+/* ===== 메인 ===== */
+#main{
+  max-width:560px;margin:0 auto;padding:0 18px 70px;
+  opacity:0;transform:translateY(24px);
+  transition:opacity .5s .25s ease, transform .5s .25s ease;
+}
+#main.show{opacity:1;transform:none}
+.top{padding:26px 0 18px;text-align:center}
+.mini-logo{
+  width:88px;height:88px;margin:0 auto 14px;
+  background:var(--black);color:var(--yellow);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;letter-spacing:.1em;cursor:pointer;
+  box-shadow:inset 0 0 0 4px var(--yellow), inset 0 0 0 8px var(--black);
+  transition:transform .2s;
+}
+.mini-logo:hover{transform:rotate(-8deg) scale(1.06)}
+h1{font-size:clamp(30px,8vw,44px);line-height:1.05;letter-spacing:-.03em}
+h1 em{font-style:normal;background:var(--black);color:var(--yellow);padding:0 8px;display:inline-block;transform:rotate(-1.5deg)}
+.sub{margin-top:10px;font-size:13px;letter-spacing:.18em;opacity:.7}
+
+/* 인포 카드 */
+.card{margin-top:22px;padding:22px 20px}
+.card h2{
+  font-size:12px;letter-spacing:.3em;margin-bottom:14px;
+  display:inline-block;background:var(--black);color:var(--yellow);padding:5px 10px;
+}
+dl{display:grid;grid-template-columns:76px 1fr;gap:12px 10px;font-size:14.5px;line-height:1.5}
+dt{font-size:11.5px;letter-spacing:.08em;background:var(--yellow-deep);border:2px solid var(--black);padding:3px 0;text-align:center;height:fit-content}
+dd{font-weight:600}
+dd small{display:block;font-size:11.5px;opacity:.6;margin-top:3px;font-weight:700}
+
+/* 버튼 */
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.btn{
+  font:inherit;font-size:15px;cursor:pointer;
+  background:var(--paper);border:var(--line) solid var(--black);
+  box-shadow:6px 6px 0 var(--black);
+  padding:20px 8px 16px;text-align:center;
+  transition:transform .12s, box-shadow .12s, background .12s;
+}
+.btn span{display:block;font-size:22px;margin-bottom:6px}
+.btn:hover{background:var(--black);color:var(--yellow)}
+.btn:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--black)}
+.btn.wide{grid-column:1/-1}
+
+.note{
+  margin-top:18px;padding:14px;font-size:12.5px;line-height:1.6;
+  border:3px dashed var(--black);text-align:center;opacity:.85;
+}
+footer{margin-top:26px;text-align:center;font-size:11px;letter-spacing:.2em;opacity:.55}
+
+/* ===== 모달 ===== */
+.modal{
+  position:fixed;inset:0;z-index:200;display:none;
+  align-items:flex-end;justify-content:center;
+  background:rgba(17,16,16,.72);
+  padding:0;
+}
+.modal.open{display:flex;animation:fade .2s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{
+  width:100%;max-width:560px;max-height:88vh;overflow-y:auto;
+  background:var(--paper);
+  border:var(--line) solid var(--black);border-bottom:none;
+  animation:up .28s cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes up{from{transform:translateY(60px)}to{transform:none}}
+.sheet-top{
+  position:sticky;top:0;z-index:2;
+  background:var(--black);color:var(--yellow);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;
+}
+.sheet-top h3{font-size:16px;letter-spacing:.05em}
+.x{
+  background:var(--yellow);color:var(--black);border:none;font:inherit;
+  width:30px;height:30px;font-size:16px;cursor:pointer;line-height:1;
+}
+.x:hover{background:#fff}
+.sheet-body{padding:20px 18px 34px;font-size:14px;line-height:1.75;font-weight:600}
+.sheet-body h4{
+  font-size:12px;letter-spacing:.2em;margin:22px 0 10px;
+  background:var(--yellow);display:inline-block;padding:4px 9px;border:2px solid var(--black);
+}
+.sheet-body h4:first-child{margin-top:0}
+.sheet-body ul{list-style:none;margin:0}
+.sheet-body li{padding-left:18px;position:relative;margin-bottom:6px}
+.sheet-body li::before{content:"▪";position:absolute;left:2px}
+.ph{
+  border:3px dashed var(--black);background:repeating-linear-gradient(45deg,rgba(0,0,0,.04) 0 8px,transparent 8px 16px);
+  min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;font-size:13px;text-align:center;opacity:.75;margin:6px 0 4px;
+}
+.ph b{font-size:26px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.goods{
+  border:3px solid var(--black);background:#fff;
+  aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;font-size:12px;text-align:center;
+}
+.goods b{font-size:24px}
+.tagline{
+  background:var(--black);color:var(--yellow);padding:10px 12px;
+  font-size:12.5px;letter-spacing:.05em;margin-top:18px;text-align:center;
+}
+.notice-item{border-bottom:2px dotted var(--black);padding:12px 0}
+.notice-item:last-child{border:none}
+.notice-item time{font-size:11px;background:var(--yellow-deep);border:2px solid var(--black);padding:2px 7px;letter-spacing:.05em}
+.notice-item p{margin-top:8px}
+@media(max-width:380px){.btns{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ========== 인트로 ========== -->
+<div id="intro">
+  <div class="logo-wrap">
+    <div class="logo"><b>LOGO</b><small>PLACEHOLDER</small></div>
+    <div class="badge">준비중!</div>
+  </div>
+  <div class="tap">▸ 로고를 눌러주세요 ◂</div>
+</div>
+
+<!-- ========== 메인 ========== -->
+<div id="main">
+  <div class="top">
+    <div class="mini-logo" id="backToIntro">LOGO</div>
+    <h1>행사명을<br><em>여기에</em></h1>
+    <p class="sub">2 0 2 6 . 0 0 . 0 0</p>
+  </div>
+
+  <div class="tape"><span>★ EVENT NAME ★ 2026.00.00 ★ 준비중 ★ COMING SOON ★ EVENT NAME ★ 2026.00.00 ★ 준비중 ★ COMING SOON ★&nbsp;</span></div>
+
+  <div class="card box">
+    <h2>BASIC INFO</h2>
+    <dl>
+      <dt>일 시</dt><dd>2026년 00월 00일 (요일)<small>00:00 ~ 00:00 · 입장 00:00부터</small></dd>
+      <dt>장 소</dt><dd>장소명 플레이스홀더<small>서울시 ○○구 ○○로 00, 0층</small></dd>
+      <dt>참가비</dt><dd>0,000원 (또는 무료)</dd>
+      <dt>정 원</dt><dd>00명 (선착순)</dd>
+      <dt>주 최</dt><dd>주최자명 / @계정명</dd>
+    </dl>
+  </div>
+
+  <div class="btns">
+    <button class="btn" data-modal="m1"><span>◈</span>행사 개요</button>
+    <button class="btn" data-modal="m2"><span>◎</span>참가 안내</button>
+    <button class="btn" data-modal="m3"><span>✦</span>기념품 안내</button>
+    <button class="btn" data-modal="m4"><span>!</span>공 지</button>
+  </div>
+
+  <p class="note">※ 본 페이지는 제작 중인 임시 페이지입니다.<br>모든 내용은 추후 변경될 수 있습니다.</p>
+
+  <footer>© 2026 EVENT NAME · ALL RIGHTS RESERVED</footer>
+</div>
+
+<!-- ========== 모달 ========== -->
+<div class="modal" id="m1">
+  <div class="sheet">
+    <div class="sheet-top"><h3>◈ 행사 개요</h3><button class="x" data-close>✕</button></div>
+    <div class="sheet-body">
+      <h4>ABOUT</h4>
+      <p>행사 소개 문구가 들어갈 자리입니다. 어떤 행사인지, 어떤 사람들이 모이는지, 무엇을 하는 자리인지 2~3문장으로 적어주세요.</p>
+      <h4>TIMETABLE</h4>
+      <ul>
+        <li>00:00 — 입장 및 접수</li>
+        <li>00:00 — 프로그램 1 (00분)</li>
+        <li>00:00 — 휴식 (00분)</li>
+        <li>00:00 — 프로그램 2 (00분)</li>
+        <li>00:00 — 마무리 / 퇴장</li>
+      </ul>
+      <h4>KEYWORD</h4>
+      <p>#키워드1 #키워드2 #키워드3</p>
+      <div class="tagline">★ 자세한 내용은 추후 공지 예정 ★</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="m2">
+  <div class="sheet">
+    <div class="sheet-top"><h3>◎ 참가 안내</h3><button class="x" data-close>✕</button></div>
+    <div class="sheet-body">
+      <h4>신청 방법</h4>
+      <ul>
+        <li>신청 기간: 2026.00.00 ~ 00.00</li>
+        <li>신청 폼 링크 (준비중)</li>
+        <li>선착순 00명 마감, 확정 안내는 DM으로 발송</li>
+      </ul>
+      <h4>참가 시 유의사항</h4>
+      <ul>
+        <li>유의사항 1 플레이스홀더</li>
+        <li>유의사항 2 플레이스홀더</li>
+        <li>유의사항 3 플레이스홀더</li>
+      </ul>
+      <h4>오시는 길</h4>
+      <div class="ph"><b>MAP</b>약도 이미지 자리<br>(추후 업로드 예정)</div>
+      <p style="font-size:12.5px;opacity:.75;margin-top:8px">○○역 0번 출구 도보 0분 · 상세 위치는 참가 확정자에게 개별 안내</p>
+      <div class="tagline">★ 문의 : @계정명 DM ★</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="m3">
+  <div class="sheet">
+    <div class="sheet-top"><h3>✦ 기념품 안내</h3><button class="x" data-close>✕</button></div>
+    <div class="sheet-body">
+      <h4>GOODS LIST</h4>
+      <div class="grid2">
+        <div class="goods"><b>?</b>기념품 1<br>준비중</div>
+        <div class="goods"><b>?</b>기념품 2<br>준비중</div>
+        <div class="goods"><b>?</b>기념품 3<br>준비중</div>
+        <div class="goods"><b>?</b>기념품 4<br>준비중</div>
+      </div>
+      <h4>배부 안내</h4>
+      <ul>
+        <li>참가자 전원에게 현장에서 배부됩니다.</li>
+        <li>수량 한정 품목은 선착순으로 배부될 수 있습니다.</li>
+        <li>구성은 변경될 수 있습니다.</li>
+      </ul>
+      <div class="tagline">★ 구성 확정 후 이미지 공개 예정 ★</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="m4">
+  <div class="sheet">
+    <div class="sheet-top"><h3>! 공지사항</h3><button class="x" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="notice-item">
+        <time>2026.00.00</time>
+        <p>공지 제목 플레이스홀더 — 공지 내용이 들어갈 자리입니다.</p>
+      </div>
+      <div class="notice-item">
+        <time>2026.00.00</time>
+        <p>공지 제목 플레이스홀더 — 공지 내용이 들어갈 자리입니다.</p>
+      </div>
+      <div class="notice-item">
+        <time>2026.00.00</time>
+        <p>페이지 오픈 안내 — 현재 제작 중인 페이지이며, 모든 정보는 확정 후 업데이트됩니다.</p>
+      </div>
+      <div class="tagline">★ 공지는 계정을 통해서도 안내됩니다 ★</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var intro = document.getElementById('intro');
+  var main  = document.getElementById('main');
+
+  function openMain(){
+    intro.classList.add('gone');
+    main.classList.add('show');
+    setTimeout(function(){ intro.style.display='none'; }, 500);
+  }
+  intro.addEventListener('click', openMain);
+
+  document.getElementById('backToIntro').addEventListener('click', function(){
+    intro.style.display='flex';
+    main.classList.remove('show');
+    window.scrollTo(0,0);
+    requestAnimationFrame(function(){ intro.classList.remove('gone'); });
+  });
+
+  // 모달
+  var openEl = null;
+  function close(){
+    if(!openEl) return;
+    openEl.classList.remove('open');
+    document.body.style.overflow='';
+    openEl = null;
+  }
+  document.querySelectorAll('[data-modal]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var m = document.getElementById(b.dataset.modal);
+      m.classList.add('open');
+      m.querySelector('.sheet').scrollTop = 0;
+      document.body.style.overflow='hidden';
+      openEl = m;
+    });
+  });
+  document.querySelectorAll('[data-close]').forEach(function(b){
+    b.addEventListener('click', close);
+  });
+  document.querySelectorAll('.modal').forEach(function(m){
+    m.addEventListener('click', function(e){ if(e.target === m) close(); });
+  });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
+})();
+</script>
+</body>
+</html>
